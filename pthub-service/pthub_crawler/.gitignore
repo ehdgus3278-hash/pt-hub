@@ -1,0 +1,9 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# 크롤러 산출물 (재생성 가능)
+events*.json
+*.tmp.sql
+_upload_*.sql

@@ -1,0 +1,61 @@
+name: Weekly Crawl
+
+on:
+  schedule:
+    # 매주 월요일 09:00 KST (UTC 00:00)
+    - cron: '0 0 * * 1'
+  workflow_dispatch: # 수동 실행 버튼
+
+permissions:
+  contents: read
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -r pthub_crawler/requirements.txt
+
+      - name: Install Playwright Chromium
+        run: |
+          playwright install chromium
+          playwright install-deps chromium
+
+      - name: Run crawler
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          cd pthub_crawler
+          python -m pthub_crawler --output events.json
+          python ../scripts/upload_to_supabase.py events.json
+
+      - name: Upload events.json artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: events-${{ github.run_id }}
+          path: pthub_crawler/events.json
+          retention-days: 30
+
+      - name: Notify Slack on failure
+        if: failure() && env.SLACK_WEBHOOK != ''
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"❌ PT-Hub 주간 크롤링 실패. <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|로그 확인>"}' \
+            $SLACK_WEBHOOK || true
