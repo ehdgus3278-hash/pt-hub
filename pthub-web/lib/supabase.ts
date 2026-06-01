@@ -43,6 +43,32 @@ export async function getEvents(): Promise<PthubEvent[]> {
   return data || [];
 }
 
+// 단일 일정 조회 (상세 페이지용)
+export async function getEventById(id: number): Promise<PthubEvent | null> {
+  const { data, error } = await supabase
+    .from('events_with_org')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+  if (error) {
+    console.error('getEventById:', error);
+    return null;
+  }
+  return data;
+}
+
+// 전체 일정 ID 목록 (sitemap·정적 생성용, 종료된 일정 포함)
+export async function getAllEventIds(): Promise<number[]> {
+  const { data, error } = await supabase
+    .from('events_with_org')
+    .select('id');
+  if (error) {
+    console.error('getAllEventIds:', error);
+    return [];
+  }
+  return (data || []).map((r: { id: number }) => r.id);
+}
+
 // 월별 일정만 가져오는 효율 쿼리 (옵션)
 export async function getEventsInMonth(year: number, month: number): Promise<PthubEvent[]> {
   const start = `${year}-${String(month).padStart(2, '0')}-01`;

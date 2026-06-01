@@ -155,6 +155,32 @@ export default function EventModal({ event, onClose }: Props) {
                   <polyline points="12 5 19 12 12 19" />
                 </svg>
               </button>
+              <div className="flex items-center justify-center gap-4 pt-1">
+                <a
+                  href={`/event/${event.id}`}
+                  className="text-[12.5px] text-ink-soft hover:text-accent underline underline-offset-4 transition-colors"
+                >
+                  이 일정 페이지 열기
+                </a>
+                <button
+                  onClick={async () => {
+                    const url = `${window.location.origin}/event/${event.id}`;
+                    const shareData = { title: event.title, text: `${event.org_name} · ${event.title}`, url };
+                    if (navigator.share) {
+                      try { await navigator.share(shareData); } catch { /* 취소 무시 */ }
+                    } else {
+                      try {
+                        await navigator.clipboard.writeText(url);
+                        alert('링크가 복사되었습니다.');
+                      } catch { /* 무시 */ }
+                    }
+                  }}
+                  className="text-[12.5px] text-ink-soft hover:text-accent underline underline-offset-4 transition-colors"
+                >
+                  공유하기
+                </button>
+              </div>
+
               <button
                 onClick={() => setShowReport(true)}
                 className="py-2.5 px-4 text-[12.5px] text-ink-mute hover:text-rose underline underline-offset-4 transition-colors"
