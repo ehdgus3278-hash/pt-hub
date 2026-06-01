@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getOrganizations, getOrgReviewStats } from '@/lib/supabase';
 
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: '교육 후기 게시판 · PT-Hub',

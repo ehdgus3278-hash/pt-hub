@@ -1,15 +1,11 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getOrganizationById, getOrganizations, getReviewsByOrg } from '@/lib/supabase';
+import { getOrganizationById, getReviewsByOrg } from '@/lib/supabase';
 import OrgReviewBoard from '@/components/OrgReviewBoard';
 
-export const revalidate = 60;
-
-export async function generateStaticParams() {
-  const orgs = await getOrganizations();
-  return orgs.map(o => ({ orgId: o.id }));
-}
+// 후기는 작성 즉시 반영돼야 하므로 캐시하지 않고 매 요청 렌더링
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: { orgId: string } }): Promise<Metadata> {
   const org = await getOrganizationById(params.orgId);
