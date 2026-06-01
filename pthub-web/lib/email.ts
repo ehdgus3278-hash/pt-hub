@@ -16,6 +16,11 @@ export function esc(s: string | null | undefined): string {
   );
 }
 
+// 간단한 이메일 형식 검증 (reply_to 용)
+function isValidEmail(s: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+}
+
 export async function sendNotificationEmail(opts: {
   subject: string;
   html: string;
@@ -26,6 +31,10 @@ export async function sendNotificationEmail(opts: {
 
   const to = process.env.MAIL_TO || 'ehdgus3278@gmail.com';
   const from = process.env.MAIL_FROM || 'PT-Hub <onboarding@resend.dev>';
+
+  // reply_to 는 '유효한 이메일'일 때만 포함 (잘못된 값이면 Resend 가 메일 전체를 422 로 거부)
+  const replyTo = opts.replyTo?.trim();
+  const validReplyTo = replyTo && isValidEmail(replyTo) ? replyTo : undefined;
 
   try {
     const res = await fetch(RESEND_ENDPOINT, {
@@ -39,7 +48,7 @@ export async function sendNotificationEmail(opts: {
         to,
         subject: opts.subject,
         html: opts.html,
-        ...(opts.replyTo ? { reply_to: opts.replyTo } : {}),
+        ...(validReplyTo ? { reply_to: validReplyTo } : {}),
       }),
       cache: 'no-store',
     });
