@@ -4,11 +4,10 @@ import { useState } from 'react';
 import type { AdminReview } from '@/lib/supabase-admin';
 
 interface Props {
-  token: string;
   initial: AdminReview[];
 }
 
-export default function AdminReviews({ token, initial }: Props) {
+export default function AdminReviews({ initial }: Props) {
   const [reviews, setReviews] = useState<AdminReview[]>(initial);
   const [busy, setBusy] = useState<number | null>(null);
   const [editing, setEditing] = useState<number | null>(null);
@@ -20,7 +19,7 @@ export default function AdminReviews({ token, initial }: Props) {
       const res = await fetch('/api/admin/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: token, id, action, ...extra }),
+        body: JSON.stringify({ id, action, ...extra }),
       });
       const data = await res.json();
       if (!data.ok) { alert(data.error || '실패'); return; }

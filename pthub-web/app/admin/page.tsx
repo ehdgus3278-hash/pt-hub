@@ -1,20 +1,19 @@
+import { cookies } from 'next/headers';
 import { getVisitStats, adminListReviews } from '@/lib/supabase-admin';
 import AdminReviews from '@/components/AdminReviews';
+import AdminLogin from '@/components/AdminLogin';
+import { ADMIN_COOKIE } from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic'; // 항상 최신 집계
 export const revalidate = 0;
 
 // 나만 보는 방문자 통계 페이지.
-// 접근: /admin?key=<ADMIN_TOKEN>  (토큰은 Vercel 환경변수로만 보관)
-export default async function AdminPage({
-  searchParams,
-}: {
-  searchParams: { key?: string };
-}) {
+// 인증: HttpOnly 쿠키(pthub_admin) — 토큰이 URL 에 노출되지 않음.
+//       쿠키 미보유/불일치 시 로그인 폼을 노출.
+export default async function AdminPage() {
   const token = process.env.ADMIN_TOKEN;
-  const provided = searchParams?.key;
 
-  // 토큰 미설정 시 잠금(설정하라고 안내), 토큰 불일치 시 404처럼 위장
+  // 토큰 미설정 시 설정 안내
   if (!token) {
     return (
       <Shell>
@@ -23,18 +22,16 @@ export default async function AdminPage({
           환경변수 <code className="bg-bg px-1.5 py-0.5 rounded">ADMIN_TOKEN</code> 과{' '}
           <code className="bg-bg px-1.5 py-0.5 rounded">SUPABASE_SERVICE_KEY</code> 를 Vercel에 등록한 뒤
           <br />
-          <code className="bg-bg px-1.5 py-0.5 rounded">/admin?key=토큰값</code> 으로 접속하세요.
+          <code className="bg-bg px-1.5 py-0.5 rounded">/admin</code> 에서 토큰으로 로그인하세요.
         </p>
       </Shell>
     );
   }
 
-  if (provided !== token) {
-    return (
-      <Shell>
-        <h1 className="text-xl font-bold">404 — Not Found</h1>
-      </Shell>
-    );
+  // 쿠키 인증 — 불일치 시 로그인 폼
+  const session = cookies().get(ADMIN_COOKIE)?.value;
+  if (session !== token) {
+    return <AdminLogin />;
   }
 
   const [stats, reviews] = await Promise.all([
@@ -108,7 +105,7 @@ export default async function AdminPage({
       <h2 className="text-sm font-bold text-ink-mute uppercase tracking-wider mb-3">
         교육 후기 관리 <span className="text-ink-mute font-normal normal-case">({reviews.length})</span>
       </h2>
-      <AdminReviews token={provided!} initial={reviews} />
+      <AdminReviews initial={reviews} />
     </Shell>
   );
 }

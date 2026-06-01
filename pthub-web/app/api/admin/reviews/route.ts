@@ -1,15 +1,18 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { adminSetReviewHidden, adminUpdateReview, adminDeleteReview } from '@/lib/supabase-admin';
+import { ADMIN_COOKIE } from '@/lib/admin-auth';
 
-// 어드민 후기 관리 (숨김/수정/삭제). ADMIN_TOKEN 으로 보호.
+// 어드민 후기 관리 (숨김/수정/삭제). HttpOnly 쿠키(pthub_admin)로 인증.
 export async function POST(request: Request) {
   const token = process.env.ADMIN_TOKEN;
   try {
-    const body = await request.json();
-
-    if (!token || body.key !== token) {
+    const session = cookies().get(ADMIN_COOKIE)?.value;
+    if (!token || session !== token) {
       return NextResponse.json({ ok: false, error: '권한이 없습니다.' }, { status: 403 });
     }
+
+    const body = await request.json();
 
     const id = Number(body.id);
     if (!id) return NextResponse.json({ ok: false, error: '잘못된 요청입니다.' }, { status: 400 });
