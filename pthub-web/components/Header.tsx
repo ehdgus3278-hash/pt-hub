@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import SubmitModal from './SubmitModal';
+import BookmarkModal from './BookmarkModal';
 
 export default function Header() {
   const [submitOpen, setSubmitOpen] = useState(false);
+  const [bookmarkOpen, setBookmarkOpen] = useState(false);
 
   return (
     <>
@@ -30,24 +32,22 @@ export default function Header() {
               </svg>
               <span className="max-md:hidden">일정 제보</span>
             </button>
-            <a
-              href="/api/feed"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
               className="py-2.5 px-4 rounded-full font-semibold text-[13px] text-white flex items-center gap-1.5 max-md:py-2 max-md:px-3 max-md:text-xs"
               style={{ background: 'var(--accent)' }}
+              onClick={() => setBookmarkOpen(true)}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" />
-                <path d="M16 2v4M8 2v4M3 10h18" />
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
               </svg>
-              <span className="max-md:hidden">캘린더 구독</span>
-            </a>
+              <span className="max-md:hidden">즐겨찾기 추가</span>
+            </button>
           </div>
         </div>
       </header>
 
       {submitOpen && <SubmitModal onClose={() => setSubmitOpen(false)} />}
+      {bookmarkOpen && <BookmarkModal onClose={() => setBookmarkOpen(false)} />}
     </>
   );
 }

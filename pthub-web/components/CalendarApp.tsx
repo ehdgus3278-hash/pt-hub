@@ -10,6 +10,7 @@ import Calendar from './Calendar';
 import EventList from './EventList';
 import EventModal from './EventModal';
 import MonthNav from './MonthNav';
+import InfoModal, { type InfoKey } from './InfoModal';
 
 interface Props {
   initialOrganizations: Organization[];
@@ -172,6 +173,8 @@ function countInMonth(events: PthubEvent[], month: Date): number {
 }
 
 function Footer({ lastVerified }: { lastVerified: string }) {
+  const [info, setInfo] = useState<InfoKey | null>(null);
+
   return (
     <footer>
       <div className="bg-ink text-bg py-10 px-8 mt-16 max-md:px-4 max-md:py-7 max-md:mt-10">
@@ -179,37 +182,40 @@ function Footer({ lastVerified }: { lastVerified: string }) {
           <div className="text-[11px] tracking-[.2em] uppercase text-gold mb-2.5">
             학회·교육기관 후원사 모집
           </div>
-          <div className="serif font-bold text-2xl max-w-[480px] leading-tight max-md:text-xl">
+          <div className="serif font-bold text-2xl leading-tight max-md:text-xl whitespace-nowrap max-md:whitespace-normal">
             우리 학회 일정을 더 많은 임상가에게 알리고 싶다면.
           </div>
         </div>
       </div>
-      <div className="max-w-[1400px] mx-auto py-10 px-8 grid grid-cols-1 md:grid-cols-[1.5fr_repeat(3,1fr)] gap-9 max-md:px-4 max-md:py-7 max-md:grid-cols-2 max-md:gap-6">
-        <div className="md:col-span-1 max-md:col-span-2">
+      <div className="max-w-[1400px] mx-auto py-10 px-8 grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-9 max-md:px-4 max-md:py-7 max-md:gap-6">
+        <div>
           <div className="serif font-black text-2xl">PT<span style={{ color: 'var(--accent)' }}>·</span>Hub</div>
           <p className="text-[13px] text-ink-mute mt-3 leading-relaxed max-w-[320px]">
             모든 일정은 각 학회 공식 홈페이지에서 직접 확인하여 검증합니다. 오류 발견 시 신고해 주시면 빠르게 정정합니다.
           </p>
         </div>
-        {[
-          { h: '둘러보기', items: ['전체 캘린더', '학회 목록', '보수교육', '학술대회'] },
-          { h: '기여하기', items: ['일정 제보', '오류 신고', '학회 등록 요청', '후원·광고'] },
-          { h: '안내', items: ['서비스 소개', '데이터 검증 정책', '이용약관', '문의'] },
-        ].map(({ h, items }) => (
-          <div key={h}>
-            <h4 className="text-[11px] tracking-widest uppercase text-ink-mute font-bold mb-3">{h}</h4>
-            {items.map(it => (
-              <a key={it} className="block text-[13px] text-ink-soft py-1 cursor-pointer hover:text-accent">
-                {it}
-              </a>
-            ))}
-          </div>
-        ))}
+        <div>
+          <h4 className="text-[11px] tracking-widest uppercase text-ink-mute font-bold mb-3">안내</h4>
+          <button onClick={() => setInfo('about')} className="block text-[13px] text-ink-soft py-1 cursor-pointer hover:text-accent text-left">
+            서비스 소개
+          </button>
+          <button onClick={() => setInfo('policy')} className="block text-[13px] text-ink-soft py-1 cursor-pointer hover:text-accent text-left">
+            데이터 검증 정책
+          </button>
+          <button onClick={() => setInfo('terms')} className="block text-[13px] text-ink-soft py-1 cursor-pointer hover:text-accent text-left">
+            이용약관
+          </button>
+          <a href="mailto:ehdgus3278@naver.com" className="block text-[13px] text-ink-soft py-1 cursor-pointer hover:text-accent">
+            문의
+          </a>
+        </div>
       </div>
       <div className="max-w-[1400px] mx-auto border-t border-line py-4 px-8 flex justify-between text-xs text-ink-mute flex-wrap gap-2 max-md:px-4">
         <span>© 2026 PT-Hub. 비영리 정보 큐레이션 서비스.</span>
         <span>마지막 데이터 검증: {lastVerified}</span>
       </div>
+
+      {info && <InfoModal page={info} onClose={() => setInfo(null)} />}
     </footer>
   );
 }
