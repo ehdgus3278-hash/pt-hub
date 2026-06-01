@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { submitEvent } from '@/lib/supabase';
+import { sendNotificationEmail, esc } from '@/lib/email';
 
 export async function POST(request: Request) {
   try {
@@ -43,6 +44,23 @@ export async function POST(request: Request) {
     if (!result.ok) {
       return NextResponse.json({ ok: false, error: result.error }, { status: 500 });
     }
+
+    // 이메일 알림 (실패해도 제보 접수는 성공 처리)
+    await sendNotificationEmail({
+      subject: `[PT-Hub] 새 일정 제보 — ${body.title.trim()}`,
+      replyTo: body.contact?.trim() || null,
+      html: `<h3>새 일정 제보</h3>
+        <p>
+          <b>행사명:</b> ${esc(body.title)}<br/>
+          <b>주최 기관:</b> ${esc(body.org_name)}<br/>
+          <b>기간:</b> ${esc(body.start_date)} ~ ${esc(body.end_date)}<br/>
+          <b>장소:</b> ${esc(body.location) || '-'}<br/>
+          <b>공지 URL:</b> <a href="${esc(body.url)}">${esc(body.url)}</a><br/>
+          <b>메모:</b> ${esc(body.note) || '-'}<br/>
+          <b>제보자 연락:</b> ${esc(body.contact) || '미입력'}
+        </p>`,
+    });
+
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json(
