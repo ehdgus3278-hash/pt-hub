@@ -15,7 +15,8 @@ export function getAdminClient() {
 
 export interface AdminReview {
   id: number;
-  event_id: number;
+  event_id: number | null;
+  org_id: string | null;
   nickname: string;
   rating: number;
   body: string;
@@ -29,7 +30,7 @@ export async function adminListReviews(limit = 200): Promise<AdminReview[]> {
   if (!admin) return [];
   const { data, error } = await admin
     .from('event_reviews')
-    .select('id, event_id, nickname, rating, body, hidden, created_at')
+    .select('id, event_id, org_id, nickname, rating, body, hidden, created_at')
     .order('created_at', { ascending: false })
     .limit(limit);
   if (error || !data) return [];
