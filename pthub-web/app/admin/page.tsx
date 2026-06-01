@@ -1,4 +1,5 @@
-import { getVisitStats } from '@/lib/supabase-admin';
+import { getVisitStats, adminListReviews } from '@/lib/supabase-admin';
+import AdminReviews from '@/components/AdminReviews';
 
 export const dynamic = 'force-dynamic'; // 항상 최신 집계
 export const revalidate = 0;
@@ -36,7 +37,10 @@ export default async function AdminPage({
     );
   }
 
-  const stats = await getVisitStats();
+  const [stats, reviews] = await Promise.all([
+    getVisitStats(),
+    adminListReviews(),
+  ]);
 
   if (!stats) {
     return (
@@ -92,7 +96,7 @@ export default async function AdminPage({
       </div>
 
       <h2 className="text-sm font-bold text-ink-mute uppercase tracking-wider mb-3">인기 경로</h2>
-      <div className="bg-bg-card border border-line rounded-xl overflow-hidden">
+      <div className="bg-bg-card border border-line rounded-xl overflow-hidden mb-10">
         {stats.topPaths.map((p, i) => (
           <div key={p.path} className={`flex justify-between px-4 py-2.5 text-sm ${i > 0 ? 'border-t border-line' : ''}`}>
             <span className="font-mono text-ink-soft truncate">{p.path}</span>
@@ -100,6 +104,11 @@ export default async function AdminPage({
           </div>
         ))}
       </div>
+
+      <h2 className="text-sm font-bold text-ink-mute uppercase tracking-wider mb-3">
+        교육 후기 관리 <span className="text-ink-mute font-normal normal-case">({reviews.length})</span>
+      </h2>
+      <AdminReviews token={provided!} initial={reviews} />
     </Shell>
   );
 }
