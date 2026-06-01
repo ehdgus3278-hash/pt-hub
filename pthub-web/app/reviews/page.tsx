@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getOrganizations, getOrgReviewStats } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store'; // Supabase 쿼리를 Next Data Cache 에 캐싱하지 않음 (최신 학회/후기 반영)
 
 export const metadata: Metadata = {
   title: '교육 후기 게시판 · PT-Hub',

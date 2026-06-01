@@ -6,6 +6,7 @@ import OrgReviewBoard from '@/components/OrgReviewBoard';
 
 // 후기는 작성 즉시 반영돼야 하므로 캐시하지 않고 매 요청 렌더링
 export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store'; // Supabase 쿼리를 Next Data Cache 에 캐싱하지 않음
 
 export async function generateMetadata({ params }: { params: { orgId: string } }): Promise<Metadata> {
   const org = await getOrganizationById(params.orgId);
