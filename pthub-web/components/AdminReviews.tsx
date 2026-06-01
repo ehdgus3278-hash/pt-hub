@@ -53,7 +53,7 @@ export default function AdminReviews({ token, initial }: Props) {
             <div className="flex items-center gap-2 text-[13px]">
               <span className="font-semibold">{r.nickname}</span>
               <span className="text-gold">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
-              <span className="text-ink-mute">· 일정 #{r.event_id}</span>
+              <span className="text-ink-mute">· 학회: {r.org_id ?? '(없음)'}</span>
               <span className="text-ink-mute">· {r.created_at.slice(0, 10)}</span>
               {r.hidden && <span className="text-rose font-semibold">[숨김]</span>}
             </div>
