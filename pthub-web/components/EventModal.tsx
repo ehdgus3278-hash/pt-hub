@@ -140,9 +140,11 @@ export default function EventModal({ event, onClose }: Props) {
             </div>
 
             <div className="flex flex-col gap-2.5">
-              <button
-                onClick={() => window.open(event.url, '_blank')}
-                className="py-3 px-5 rounded-full font-semibold text-sm flex items-center justify-center gap-1.5 transition-all"
+              <a
+                href={event.url || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="py-3 px-5 rounded-full font-semibold text-sm inline-flex items-center justify-center gap-1.5 transition-all"
                 style={{
                   background: isClosed ? 'transparent' : 'var(--accent)',
                   color: isClosed ? 'var(--ink)' : 'white',
@@ -154,7 +156,7 @@ export default function EventModal({ event, onClose }: Props) {
                   <line x1="5" y1="12" x2="19" y2="12" />
                   <polyline points="12 5 19 12 12 19" />
                 </svg>
-              </button>
+              </a>
               <div className="flex items-center justify-center gap-4 pt-1">
                 <a
                   href={`/event/${event.id}`}
