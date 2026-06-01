@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { PthubEvent, Organization, ReportInput } from './types';
+import type { PthubEvent, Organization, ReportInput, EventReview, ReviewInput } from './types';
 
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -105,6 +105,47 @@ export async function submitEvent(input: {
     reason: 'other',
     detail,
     reporter_email: input.contact || null,
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+// ============================================================
+// 교육 후기
+// ============================================================
+export async function getReviews(eventId: number): Promise<EventReview[]> {
+  const { data, error } = await supabase
+    .from('event_reviews')
+    .select('*')
+    .eq('event_id', eventId)
+    .eq('hidden', false)
+    .order('created_at', { ascending: false });
+  if (error) {
+    console.error('getReviews:', error);
+    return [];
+  }
+  return data || [];
+}
+
+export async function getReviewStats(eventId: number): Promise<{ count: number; avg: number | null }> {
+  const { data, error } = await supabase
+    .from('event_review_stats')
+    .select('review_count, avg_rating')
+    .eq('event_id', eventId)
+    .maybeSingle();
+  if (error || !data) return { count: 0, avg: null };
+  return { count: data.review_count ?? 0, avg: data.avg_rating ?? null };
+}
+
+export async function submitReview(input: ReviewInput): Promise<{ ok: boolean; error?: string }> {
+  if (input.rating < 1 || input.rating > 5) return { ok: false, error: '별점은 1~5 사이여야 합니다.' };
+  if (!input.body.trim()) return { ok: false, error: '후기 내용을 입력해 주세요.' };
+  const { error } = await supabase.from('event_reviews').insert({
+    event_id: input.event_id,
+    org_id: input.org_id ?? null,
+    nickname: input.nickname.trim() || '익명',
+    rating: input.rating,
+    body: input.body.trim(),
   });
   if (error) return { ok: false, error: error.message };
   return { ok: true };

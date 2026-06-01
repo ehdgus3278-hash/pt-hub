@@ -13,6 +13,53 @@ export function getAdminClient() {
   });
 }
 
+export interface AdminReview {
+  id: number;
+  event_id: number;
+  nickname: string;
+  rating: number;
+  body: string;
+  hidden: boolean;
+  created_at: string;
+}
+
+// 어드민: 최근 후기 목록 (숨김 포함)
+export async function adminListReviews(limit = 200): Promise<AdminReview[]> {
+  const admin = getAdminClient();
+  if (!admin) return [];
+  const { data, error } = await admin
+    .from('event_reviews')
+    .select('id, event_id, nickname, rating, body, hidden, created_at')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error || !data) return [];
+  return data as AdminReview[];
+}
+
+// 어드민: 후기 숨김/표시 토글
+export async function adminSetReviewHidden(id: number, hidden: boolean): Promise<boolean> {
+  const admin = getAdminClient();
+  if (!admin) return false;
+  const { error } = await admin.from('event_reviews').update({ hidden }).eq('id', id);
+  return !error;
+}
+
+// 어드민: 후기 본문 수정
+export async function adminUpdateReview(id: number, body: string): Promise<boolean> {
+  const admin = getAdminClient();
+  if (!admin) return false;
+  const { error } = await admin.from('event_reviews').update({ body }).eq('id', id);
+  return !error;
+}
+
+// 어드민: 후기 완전 삭제
+export async function adminDeleteReview(id: number): Promise<boolean> {
+  const admin = getAdminClient();
+  if (!admin) return false;
+  const { error } = await admin.from('event_reviews').delete().eq('id', id);
+  return !error;
+}
+
 export interface VisitStats {
   total: number;
   today: number;

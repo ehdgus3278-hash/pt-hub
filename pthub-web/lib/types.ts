@@ -53,3 +53,22 @@ export interface ReportInput {
   detail?: string;
   reporter_email?: string;
 }
+
+export interface EventReview {
+  id: number;
+  event_id: number;
+  org_id: string | null;
+  nickname: string;
+  rating: number; // 1~5
+  body: string;
+  hidden: boolean;
+  created_at: string;
+}
+
+export interface ReviewInput {
+  event_id: number;
+  org_id?: string | null;
+  nickname: string;
+  rating: number;
+  body: string;
+}
