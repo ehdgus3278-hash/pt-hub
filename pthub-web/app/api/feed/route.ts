@@ -60,7 +60,7 @@ export async function GET() {
       `DTSTAMP:${dtstamp}`,
       `DTSTART;VALUE=DATE:${dtstart}`,
       `DTEND;VALUE=DATE:${dtend}`,
-      fold(`SUMMARY:[${e.org_short}] ${esc(e.title)}`),
+      fold(`SUMMARY:[${esc(e.org_name)}] ${esc(e.title)}`),
       fold(`DESCRIPTION:${esc(desc)}`),
       fold(`LOCATION:${esc(location)}`),
       fold(`URL:${e.url}`),
