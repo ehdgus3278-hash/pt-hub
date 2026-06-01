@@ -5,19 +5,17 @@ import type { EventReview } from '@/lib/types';
 import StarRating from './StarRating';
 
 interface Props {
-  eventId: number;
-  orgId: string | null;
+  orgId: string;
   initialReviews: EventReview[];
-  initialAvg: number | null;
 }
 
 function fmtDate(iso: string) {
   return iso.slice(0, 10);
 }
 
-export default function ReviewSection({ eventId, orgId, initialReviews, initialAvg }: Props) {
+// 학회별 후기 게시판: 목록 + 작성 폼
+export default function OrgReviewBoard({ orgId, initialReviews }: Props) {
   const [reviews, setReviews] = useState<EventReview[]>(initialReviews);
-  const [avg, setAvg] = useState<number | null>(initialAvg);
 
   const [nickname, setNickname] = useState('');
   const [rating, setRating] = useState(0);
@@ -25,6 +23,10 @@ export default function ReviewSection({ eventId, orgId, initialReviews, initialA
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+
+  const avg = reviews.length
+    ? Math.round((reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) * 10) / 10
+    : null;
 
   const handleSubmit = async () => {
     setError(null);
@@ -36,15 +38,14 @@ export default function ReviewSection({ eventId, orgId, initialReviews, initialA
       const res = await fetch('/api/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ event_id: eventId, org_id: orgId, nickname, rating, body }),
+        body: JSON.stringify({ org_id: orgId, nickname, rating, body }),
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || '등록에 실패했어요.');
 
-      // 낙관적 추가
       const newReview: EventReview = {
         id: Date.now(),
-        event_id: eventId,
+        event_id: 0,
         org_id: orgId,
         nickname: nickname.trim() || '익명',
         rating,
@@ -52,9 +53,7 @@ export default function ReviewSection({ eventId, orgId, initialReviews, initialA
         hidden: false,
         created_at: new Date().toISOString(),
       };
-      const next = [newReview, ...reviews];
-      setReviews(next);
-      setAvg(Math.round((next.reduce((s, r) => s + r.rating, 0) / next.length) * 10) / 10);
+      setReviews([newReview, ...reviews]);
       setNickname(''); setRating(0); setBody('');
       setDone(true);
       setTimeout(() => setDone(false), 2500);
@@ -66,10 +65,10 @@ export default function ReviewSection({ eventId, orgId, initialReviews, initialA
   };
 
   return (
-    <section className="mt-10 pt-8 border-t border-line">
+    <div>
       <div className="flex items-center justify-between mb-5 flex-wrap gap-2">
         <h2 className="serif font-bold text-xl tracking-tight">
-          교육 후기 <span className="text-ink-mute font-normal text-base">{reviews.length}</span>
+          후기 <span className="text-ink-mute font-normal text-base">{reviews.length}</span>
         </h2>
         {avg != null && (
           <div className="inline-flex items-center gap-2">
@@ -98,7 +97,7 @@ export default function ReviewSection({ eventId, orgId, initialReviews, initialA
         <textarea
           value={body}
           onChange={e => setBody(e.target.value)}
-          placeholder="교육 내용·강사·실습·난이도 등 솔직한 후기를 남겨주세요. (최대 2000자)"
+          placeholder="이 학회 교육의 강사·실습·난이도·신청과정 등 솔직한 후기를 남겨주세요. (최대 2000자)"
           rows={3}
           maxLength={2000}
           className="w-full border border-line rounded-lg p-3 text-[13.5px] resize-none bg-bg-card focus:outline-none focus:border-ink-soft"
@@ -138,6 +137,6 @@ export default function ReviewSection({ eventId, orgId, initialReviews, initialA
           ))}
         </div>
       )}
-    </section>
+    </div>
   );
 }

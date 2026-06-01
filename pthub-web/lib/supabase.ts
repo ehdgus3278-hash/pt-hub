@@ -28,6 +28,19 @@ export async function getOrganizations(): Promise<Organization[]> {
   return data || [];
 }
 
+export async function getOrganizationById(orgId: string): Promise<Organization | null> {
+  const { data, error } = await supabase
+    .from('organizations')
+    .select('*')
+    .eq('id', orgId)
+    .maybeSingle();
+  if (error) {
+    console.error('getOrganizationById:', error);
+    return null;
+  }
+  return data;
+}
+
 export async function getEvents(): Promise<PthubEvent[]> {
   // end_date >= today: 종료되지 않은 행사만 (진행 중 + 예정)
   const today = new Date().toISOString().slice(0, 10);
@@ -111,37 +124,49 @@ export async function submitEvent(input: {
 }
 
 // ============================================================
-// 교육 후기
+// 교육 후기 (학회별 게시판)
 // ============================================================
-export async function getReviews(eventId: number): Promise<EventReview[]> {
+// 학회별 후기 목록
+export async function getReviewsByOrg(orgId: string): Promise<EventReview[]> {
   const { data, error } = await supabase
     .from('event_reviews')
     .select('*')
-    .eq('event_id', eventId)
+    .eq('org_id', orgId)
     .eq('hidden', false)
     .order('created_at', { ascending: false });
   if (error) {
-    console.error('getReviews:', error);
+    console.error('getReviewsByOrg:', error);
     return [];
   }
   return data || [];
 }
 
-export async function getReviewStats(eventId: number): Promise<{ count: number; avg: number | null }> {
+// 학회별 후기 개수·평균 (게시판 목록 카드용). 전체 학회를 한 번에 집계.
+export async function getOrgReviewStats(): Promise<Record<string, { count: number; avg: number | null }>> {
   const { data, error } = await supabase
-    .from('event_review_stats')
-    .select('review_count, avg_rating')
-    .eq('event_id', eventId)
-    .maybeSingle();
-  if (error || !data) return { count: 0, avg: null };
-  return { count: data.review_count ?? 0, avg: data.avg_rating ?? null };
+    .from('event_reviews')
+    .select('org_id, rating')
+    .eq('hidden', false);
+  if (error || !data) return {};
+  const acc: Record<string, { sum: number; count: number }> = {};
+  for (const r of data as { org_id: string | null; rating: number }[]) {
+    if (!r.org_id) continue;
+    const e = acc[r.org_id] || { sum: 0, count: 0 };
+    e.sum += r.rating; e.count += 1;
+    acc[r.org_id] = e;
+  }
+  const out: Record<string, { count: number; avg: number | null }> = {};
+  for (const [org, e] of Object.entries(acc)) {
+    out[org] = { count: e.count, avg: Math.round((e.sum / e.count) * 10) / 10 };
+  }
+  return out;
 }
 
 export async function submitReview(input: ReviewInput): Promise<{ ok: boolean; error?: string }> {
   if (input.rating < 1 || input.rating > 5) return { ok: false, error: '별점은 1~5 사이여야 합니다.' };
   if (!input.body.trim()) return { ok: false, error: '후기 내용을 입력해 주세요.' };
   const { error } = await supabase.from('event_reviews').insert({
-    event_id: input.event_id,
+    event_id: input.event_id ?? null,
     org_id: input.org_id ?? null,
     nickname: input.nickname.trim() || '익명',
     rating: input.rating,

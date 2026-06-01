@@ -1,9 +1,8 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getEventById, getAllEventIds, getReviews, getReviewStats } from '@/lib/supabase';
+import { getEventById, getAllEventIds } from '@/lib/supabase';
 import { dateRange } from '@/lib/format';
-import ReviewSection from '@/components/ReviewSection';
 
 export const revalidate = 600; // 10분마다 재생성
 
@@ -51,14 +50,8 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default async function EventPage({ params }: { params: { id: string } }) {
-  const eventId = Number(params.id);
-  const event = await getEventById(eventId);
+  const event = await getEventById(Number(params.id));
   if (!event) notFound();
-
-  const [reviews, reviewStats] = await Promise.all([
-    getReviews(eventId),
-    getReviewStats(eventId),
-  ]);
 
   const typeLabel = TYPE_LABEL[event.type] || event.type;
   const isClosed = event.status === '마감' || event.status === '교육 종료' || event.status === '취소됨';
@@ -82,17 +75,6 @@ export default async function EventPage({ params }: { params: { id: string } }) 
     organizer: { '@type': 'Organization', name: event.org_name, url: event.url },
     description: event.description || `${event.org_name} ${typeLabel}`,
     url: event.url,
-    ...(reviewStats.avg != null && reviewStats.count > 0
-      ? {
-          aggregateRating: {
-            '@type': 'AggregateRating',
-            ratingValue: reviewStats.avg,
-            reviewCount: reviewStats.count,
-            bestRating: 5,
-            worstRating: 1,
-          },
-        }
-      : {}),
   };
 
   return (
@@ -187,13 +169,6 @@ export default async function EventPage({ params }: { params: { id: string } }) 
             <polyline points="12 5 19 12 12 19" />
           </svg>
         </a>
-
-        <ReviewSection
-          eventId={event.id}
-          orgId={event.org_id}
-          initialReviews={reviews}
-          initialAvg={reviewStats.avg}
-        />
       </div>
     </main>
   );

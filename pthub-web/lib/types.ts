@@ -66,7 +66,7 @@ export interface EventReview {
 }
 
 export interface ReviewInput {
-  event_id: number;
+  event_id?: number | null;   // 일정별 후기일 때만. 학회 단위 후기는 null.
   org_id?: string | null;
   nickname: string;
   rating: number;
