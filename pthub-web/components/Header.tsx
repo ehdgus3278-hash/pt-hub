@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import SubmitModal from './SubmitModal';
 import BookmarkModal from './BookmarkModal';
 
@@ -13,14 +14,22 @@ export default function Header() {
       <header className="border-b border-line bg-bg sticky top-0 z-50 backdrop-blur">
         <div className="max-w-[1400px] mx-auto py-4 px-8 flex items-center justify-between gap-4 max-md:px-4 max-md:py-3">
           <div className="flex items-center">
-            <div className="flex items-baseline gap-2.5">
+            <Link href="/" className="flex items-baseline gap-2.5">
               <div className="serif font-black text-2xl tracking-tight max-md:text-[21px]">
                 PT<span style={{ color: 'var(--accent)' }}>·</span>Hub
               </div>
               <div className="text-[11px] text-ink-mute tracking-[.15em] uppercase font-medium max-md:hidden">
                 Physical Therapy Calendar
               </div>
-            </div>
+            </Link>
+            <nav className="flex gap-5 ml-6 max-md:ml-3">
+              <Link href="/" className="text-sm text-ink-soft font-medium cursor-pointer hover:text-accent max-md:text-[13px]">
+                캘린더
+              </Link>
+              <Link href="/reviews" className="text-sm text-ink-soft font-medium cursor-pointer hover:text-accent max-md:text-[13px]">
+                후기게시판
+              </Link>
+            </nav>
           </div>
           <div className="flex gap-2 items-center max-md:gap-1.5">
             <button

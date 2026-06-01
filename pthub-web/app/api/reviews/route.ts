@@ -8,9 +8,9 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const eventId = Number(body.event_id);
-    if (!eventId) {
-      return NextResponse.json({ ok: false, error: '잘못된 일정입니다.' }, { status: 400 });
+    const orgId = String(body.org_id || '').trim();
+    if (!orgId) {
+      return NextResponse.json({ ok: false, error: '학회를 선택해 주세요.' }, { status: 400 });
     }
     const rating = Number(body.rating);
     if (!(rating >= 1 && rating <= 5)) {
@@ -31,8 +31,8 @@ export async function POST(request: Request) {
     }
 
     const result = await submitReview({
-      event_id: eventId,
-      org_id: body.org_id ?? null,
+      event_id: body.event_id ? Number(body.event_id) : null,
+      org_id: orgId,
       nickname,
       rating,
       body: text,
