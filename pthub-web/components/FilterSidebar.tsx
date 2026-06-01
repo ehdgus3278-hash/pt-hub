@@ -94,14 +94,11 @@ export default function FilterSidebar(props: Props) {
                 active={orgFilter === o.id}
                 onClick={() => { onOrgFilterChange(o.id); if (window.innerWidth <= 768) setTimeout(onClose, 150); }}
                 label={
-                  <span className="flex flex-col gap-px min-w-0 flex-1 overflow-hidden">
-                    <strong className="font-bold text-[12.5px] whitespace-nowrap overflow-hidden text-ellipsis inline-flex items-center">
-                      <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{ background: o.color }} />
-                      {o.short_name}
-                    </strong>
-                    <span className="text-[11px] text-ink-mute whitespace-nowrap overflow-hidden text-ellipsis leading-tight">
+                  <span className="flex items-center min-w-0 flex-1 overflow-hidden">
+                    <span className="inline-block w-2 h-2 rounded-full mr-1.5 shrink-0" style={{ background: o.color }} />
+                    <strong className="font-semibold text-[12.5px] whitespace-nowrap overflow-hidden text-ellipsis">
                       {o.name}
-                    </span>
+                    </strong>
                   </span>
                 }
                 count={n}

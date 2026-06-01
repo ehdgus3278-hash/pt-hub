@@ -1,5 +1,6 @@
 import { getOrganizations, getEvents } from '@/lib/supabase';
 import CalendarApp from '@/components/CalendarApp';
+import VisitTracker from '@/components/VisitTracker';
 
 export const revalidate = 600; // 10분마다 정적 재생성
 
@@ -10,5 +11,10 @@ export default async function Home() {
     getEvents(),
   ]);
 
-  return <CalendarApp initialOrganizations={organizations} initialEvents={events} />;
+  return (
+    <>
+      <VisitTracker />
+      <CalendarApp initialOrganizations={organizations} initialEvents={events} />
+    </>
+  );
 }

@@ -46,7 +46,7 @@ export default function SearchBar({
               onClick={() => onOrgFilterChange(o.id)}
               dotColor={o.color}
             >
-              {o.short_name}
+              {o.name}
             </Chip>
           ))}
         </div>

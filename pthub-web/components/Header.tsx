@@ -19,12 +19,6 @@ export default function Header() {
                 Physical Therapy Calendar
               </div>
             </div>
-            <nav className="flex gap-6 ml-6 max-md:hidden">
-              <a className="text-sm text-ink font-semibold cursor-pointer">캘린더</a>
-              <a className="text-sm text-ink-soft cursor-pointer hover:text-accent">학회</a>
-              <a className="text-sm text-ink-soft cursor-pointer hover:text-accent">보수교육</a>
-              <a className="text-sm text-ink-soft cursor-pointer hover:text-accent">소식</a>
-            </nav>
           </div>
           <div className="flex gap-2 items-center max-md:gap-1.5">
             <button

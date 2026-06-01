@@ -87,7 +87,7 @@ export default function EventModal({ event, onClose }: Props) {
               {event.title}
             </h2>
             <div className="text-[13px] text-ink-mute mb-5">
-              {event.org_name} · {event.org_short}
+              {event.org_name}
             </div>
 
             <dl className="grid grid-cols-[90px_1fr] gap-y-3 gap-x-4 py-4 border-y border-line mb-4 max-md:grid-cols-[80px_1fr] max-md:gap-x-3.5">
