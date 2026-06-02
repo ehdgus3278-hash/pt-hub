@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { kstDateStr, kstDateStrDaysAgo } from './kst';
 
 // 서버 전용 모듈. service_role 키는 RLS 를 우회하므로 절대 클라이언트에 노출 금지.
 // 이 파일은 서버 컴포넌트(app/admin/page.tsx)에서만 import 되며,
@@ -90,9 +91,10 @@ export async function getVisitStats(): Promise<VisitStats | null> {
 
   if (error || !data) return null;
 
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const d7 = new Date(); d7.setDate(d7.getDate() - 7);
-  const d30 = new Date(); d30.setDate(d30.getDate() - 30);
+  // 모든 날짜 비교는 KST(UTC+9) 기준 YYYY-MM-DD 문자열로 수행
+  const todayStr = kstDateStr();
+  const str7 = kstDateStrDaysAgo(6);   // 오늘 포함 최근 7일
+  const str30 = kstDateStrDaysAgo(29); // 오늘 포함 최근 30일
 
   let today = 0, last7 = 0, last30 = 0;
   const uniqToday = new Set<string>();
@@ -101,17 +103,16 @@ export async function getVisitStats(): Promise<VisitStats | null> {
   const pathMap = new Map<string, number>();
 
   for (const row of data) {
-    const created = new Date(row.created_at as string);
-    const dayKey = (row.created_at as string).slice(0, 10);
+    const dayKey = kstDateStr(new Date(row.created_at as string)); // KST 날짜
     const v = (row.visitor as string) || '?';
 
-    last30++;
-    if (created >= d30) {
+    if (dayKey >= str30) {
+      last30++;
       const e = dailyMap.get(dayKey) || { views: 0, u: new Set<string>() };
       e.views++; e.u.add(v);
       dailyMap.set(dayKey, e);
     }
-    if (created >= d7) { last7++; uniq7.add(v); }
+    if (dayKey >= str7) { last7++; uniq7.add(v); }
     if (dayKey === todayStr) { today++; uniqToday.add(v); }
 
     const p = (row.path as string) || '/';
@@ -128,7 +129,7 @@ export async function getVisitStats(): Promise<VisitStats | null> {
     .slice(0, 10);
 
   return {
-    total: data.length,
+    total: last30,
     today,
     last7,
     last30,
