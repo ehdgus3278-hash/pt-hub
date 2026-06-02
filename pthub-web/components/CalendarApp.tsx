@@ -11,6 +11,7 @@ import EventList from './EventList';
 import EventModal from './EventModal';
 import MonthNav from './MonthNav';
 import InfoModal, { type InfoKey } from './InfoModal';
+import DaySheet from './DaySheet';
 
 interface Props {
   initialOrganizations: Organization[];
@@ -33,6 +34,7 @@ export default function CalendarApp({ initialOrganizations, initialEvents }: Pro
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
   const [selectedEvent, setSelectedEvent] = useState<PthubEvent | null>(null);
+  const [daySheet, setDaySheet] = useState<{ date: Date; events: PthubEvent[] } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // 필터 적용
@@ -133,6 +135,7 @@ export default function CalendarApp({ initialOrganizations, initialEvents }: Pro
               month={month}
               events={filtered}
               onEventClick={setSelectedEvent}
+              onDayClick={(date, dayEvents) => setDaySheet({ date, events: dayEvents })}
             />
           ) : (
             <EventList
@@ -143,6 +146,15 @@ export default function CalendarApp({ initialOrganizations, initialEvents }: Pro
           )}
         </section>
       </main>
+
+      {daySheet && (
+        <DaySheet
+          date={daySheet.date}
+          events={daySheet.events}
+          onEventClick={(e) => { setDaySheet(null); setSelectedEvent(e); }}
+          onClose={() => setDaySheet(null)}
+        />
+      )}
 
       {selectedEvent && (
         <EventModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />
