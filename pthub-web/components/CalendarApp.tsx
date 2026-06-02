@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import type { Organization, PthubEvent } from '@/lib/types';
 import Header from './Header';
 import Hero from './Hero';
@@ -34,13 +34,6 @@ export default function CalendarApp({ initialOrganizations, initialEvents }: Pro
   });
   const [selectedEvent, setSelectedEvent] = useState<PthubEvent | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // 모바일 진입 시 자동 리스트뷰
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
-      setView('list');
-    }
-  }, []);
 
   // 필터 적용
   const filtered = useMemo(() => {
