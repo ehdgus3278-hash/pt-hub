@@ -7,6 +7,7 @@ interface Props {
   month: Date;
   events: PthubEvent[];
   onEventClick: (event: PthubEvent) => void;
+  onDayClick: (date: Date, events: PthubEvent[]) => void;
 }
 
 interface Cell {
@@ -15,7 +16,7 @@ interface Cell {
   events: PthubEvent[];
 }
 
-export default function Calendar({ month, events, onEventClick }: Props) {
+export default function Calendar({ month, events, onEventClick, onDayClick }: Props) {
   const cells = useMemo<Cell[]>(() => {
     const year = month.getFullYear();
     const m = month.getMonth();
@@ -72,9 +73,10 @@ export default function Calendar({ month, events, onEventClick }: Props) {
           return (
             <div
               key={i}
-              className={`border-r border-b border-line-soft px-1.5 pt-1.5 pb-2 relative cursor-pointer transition-colors min-h-[120px] min-w-0 overflow-hidden max-md:min-h-[64px] max-md:px-0.5 max-md:pt-1 max-md:pb-1 ${
-                c.muted ? 'bg-black/5' : ''
-              } ${(i + 1) % 7 === 0 ? '!border-r-0' : ''}`}
+              onClick={() => { if (c.events.length > 0) onDayClick(c.date, c.events); }}
+              className={`border-r border-b border-line-soft px-1.5 pt-1.5 pb-2 relative transition-colors min-h-[120px] min-w-0 overflow-hidden max-md:min-h-[64px] max-md:px-0.5 max-md:pt-1 max-md:pb-1 ${
+                c.events.length > 0 ? 'cursor-pointer hover:bg-bg' : ''
+              } ${c.muted ? 'bg-black/5' : ''} ${(i + 1) % 7 === 0 ? '!border-r-0' : ''}`}
               style={{ background: !c.muted ? undefined : 'rgba(0,0,0,.015)' }}
             >
               <span
