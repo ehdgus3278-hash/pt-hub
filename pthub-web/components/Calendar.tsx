@@ -6,7 +6,6 @@ import type { PthubEvent } from '@/lib/types';
 interface Props {
   month: Date;
   events: PthubEvent[];
-  onEventClick: (event: PthubEvent) => void;
   onDayClick: (date: Date, events: PthubEvent[]) => void;
 }
 
@@ -16,7 +15,7 @@ interface Cell {
   events: PthubEvent[];
 }
 
-export default function Calendar({ month, events, onEventClick, onDayClick }: Props) {
+export default function Calendar({ month, events, onDayClick }: Props) {
   const cells = useMemo<Cell[]>(() => {
     const year = month.getFullYear();
     const m = month.getMonth();
@@ -94,8 +93,7 @@ export default function Calendar({ month, events, onEventClick, onDayClick }: Pr
                 {shown.map(e => (
                   <div
                     key={e.id}
-                    onClick={(ev) => { ev.stopPropagation(); onEventClick(e); }}
-                    className="text-[10.5px] py-0.5 px-1.5 rounded text-white font-medium leading-tight overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer hover:translate-x-0.5 transition-transform max-md:text-[8.5px] max-md:py-px max-md:px-1 max-md:rounded-sm"
+                    className="text-[10.5px] py-0.5 px-1.5 rounded text-white font-medium leading-tight overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none max-md:text-[8.5px] max-md:py-px max-md:px-1 max-md:rounded-sm"
                     style={{ background: e.org_color }}
                     title={e.title}
                   >

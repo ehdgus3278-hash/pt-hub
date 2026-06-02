@@ -134,7 +134,6 @@ export default function CalendarApp({ initialOrganizations, initialEvents }: Pro
             <Calendar
               month={month}
               events={filtered}
-              onEventClick={setSelectedEvent}
               onDayClick={(date, dayEvents) => setDaySheet({ date, events: dayEvents })}
             />
           ) : (
