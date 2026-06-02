@@ -92,6 +92,27 @@ export default async function AdminPage() {
         )}
       </div>
 
+      <h2 className="text-sm font-bold text-ink-mute uppercase tracking-wider mb-3">날짜별 조회수 (KST)</h2>
+      <div className="bg-bg-card border border-line rounded-xl overflow-hidden mb-10">
+        <div className="flex justify-between px-4 py-2 text-[11px] font-bold text-ink-mute uppercase tracking-wider border-b border-line">
+          <span>날짜</span>
+          <span className="flex gap-6"><span className="w-12 text-right">방문</span><span className="w-12 text-right">순방문</span></span>
+        </div>
+        {stats.daily.length === 0 ? (
+          <div className="px-4 py-4 text-sm text-ink-mute text-center">아직 데이터가 없습니다.</div>
+        ) : (
+          [...stats.daily].reverse().map((d, i) => (
+            <div key={d.date} className={`flex justify-between px-4 py-2 text-sm ${i > 0 ? 'border-t border-line-soft' : ''}`}>
+              <span className="tabular-nums text-ink-soft">{d.date}</span>
+              <span className="flex gap-6">
+                <span className="w-12 text-right tabular-nums font-semibold">{d.views}</span>
+                <span className="w-12 text-right tabular-nums text-ink-mute">{d.uniques}</span>
+              </span>
+            </div>
+          ))
+        )}
+      </div>
+
       <h2 className="text-sm font-bold text-ink-mute uppercase tracking-wider mb-3">인기 경로</h2>
       <div className="bg-bg-card border border-line rounded-xl overflow-hidden mb-10">
         {stats.topPaths.map((p, i) => (

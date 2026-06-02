@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHash } from 'crypto';
 import { supabase } from '@/lib/supabase';
+import { kstDateStr } from '@/lib/kst';
 
 export const runtime = 'nodejs';
 
 // 일자별로 회전하는 솔트 → 같은 방문자라도 날짜가 바뀌면 해시가 달라짐.
+// KST 기준 날짜로 회전해 집계(KST)와 순방문 경계를 일치시킨다.
 // 원본 IP 는 어디에도 저장하지 않음 (개인정보 보호).
 function visitorHash(ip: string, ua: string): string {
-  const day = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const day = kstDateStr(); // KST YYYY-MM-DD
   const secret = process.env.TRACK_SALT || 'pthub';
   return createHash('sha256').update(`${day}|${ip}|${ua}|${secret}`).digest('hex').slice(0, 32);
 }
